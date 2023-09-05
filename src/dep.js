@@ -126,16 +126,25 @@ function getThisModule(cwd = undefined, quiet = false) {
     }
   }
 
-  preprocessDependencies(json);
-
   return json;
 }
 
+/**
+ * 
+ * @param {ThisModule} thisModule 
+ * @returns {ThisModule} but with dependencies preprocessed
+ */
 function preprocessDependencies(thisModule) {
+  /** @type {ThisModule} */
+  const result = {
+    dependency_dir: thisModule.dependency_dir,
+    dependencies: {}
+  }
+
   // preprocess dependencies
   for (const [key, value] of Object.entries(thisModule.dependencies)) {
     if (typeof value === "string") {
-      thisModule.dependencies[key] = {
+      result.dependencies[key] = {
         version: value,
         dir_name: key.split("/").join("_")
       }
@@ -143,16 +152,19 @@ function preprocessDependencies(thisModule) {
       if (!value.dir_name) {
         value.dir_name = key.split("/").join("_");
       }
+      result.dependencies[key] = value;
     }
   }
+  return result;
 }
 
 function setVersion(thisModule, repo, version, dir_name = undefined) {
+  const dirNameSet = dir_name !== undefined;
   if (!dir_name) {
     dir_name = repo.split("/").join("_");
   }
   if (!thisModule.dependencies[repo]) {
-    if (dir_name) {
+    if (dirNameSet) {
       thisModule.dependencies[repo] = {
         version: version,
         dir_name: dir_name
@@ -161,7 +173,7 @@ function setVersion(thisModule, repo, version, dir_name = undefined) {
       thisModule.dependencies[repo] = version;
     }
   } else {
-    if (dir_name) {
+    if (dirNameSet) {
       if (typeof thisModule.dependencies[repo] === "string") {
         thisModule.dependencies[repo] = {
           version: version,
