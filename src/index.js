@@ -27,10 +27,6 @@ switch (command) {
       installAll();
       break;
     }
-    if (args[1] === "--override") {
-      installAll(true);
-      break;
-    }
     install(args[1]);
     break;
   case "tree":
@@ -38,6 +34,16 @@ switch (command) {
     break;
   case "list":
     list();
+    break;
+  case "uninstall":
+    if (args.length === 1) {
+      console.log("Please specify a repo");
+      process.exit(1);
+    }
+    uninstall(args[1]);
+    break;
+  case "reinstall":
+    installAll(true);
     break;
   default:
     console.log(`Unknown command ${command}`);
