@@ -2,7 +2,8 @@
   "name": "gh-dep",
   "version": "1.0.0",
   "description": "Dependency manager for gh",
-  "main": "index.js",
+  "main": "src/index.js",
+  "types": "src/types.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/index.js"
