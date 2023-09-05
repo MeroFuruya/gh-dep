@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/index.js",
+      "cwd": "${workspaceFolder}",
+      "args": [
+        "--inspect-brk=9229"
+      ]
+    }
+  ]
+}
