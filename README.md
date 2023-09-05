@@ -3,8 +3,8 @@ Dependency manager for gh
 
 ## Installation
 
-- you need to have node >= 8.0.0 installed
-- github cli
+- node >= 8.0.0 installed
+- git (dependent on git bash)
 
 ```bash
 gh extension install merofuruya/gh-dep
