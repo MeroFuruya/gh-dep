@@ -111,6 +111,7 @@ function list() {
   if (!thisModule) {
     return;
   }
+  thisModule = preprocessDependencies(thisModule);
   for (const [key, value] of Object.entries(thisModule.dependencies)) {
     console.log(`${key}: ${value.version}`);
   }
