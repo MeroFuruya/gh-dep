@@ -17,9 +17,10 @@ function help() {
     "  list      List all dependencies",
     "  tree      Show a tree of all dependencies",
     "",
-    "  install                      Install all dependencies",
+    "  reinstall                    reinstall all dependencies",
+    "  install                      Install all (missing) dependencies",
     "  install <repo>[@<version>]   Install a dependency",
-    "  install --override           reInstall all dependencies",
+    "  uninstall <repo>             Uninstall a dependency",
   ];
   console.log(help.join("\n"));
 }
@@ -167,23 +168,43 @@ function installAll(override = false, cwd = undefined, thisModule = undefined) {
  * @summary Show a tree of all dependencies
  * @returns {void}
  */
-function tree() {
-  const deps = {};
-  function fetchModule(cwd) {
+function tree(max_depth = Infinity) {
+  function fetchModule(cwd, depth = 0) {
+    if (depth > max_depth) {
+      return {};
+    }
     const thisModule = getThisModule(cwd, true);
     if (!thisModule) {
       return;
     }
+    const res = {};
     for (const [key, value] of Object.entries(thisModule.dependencies)) {
-      if (!deps[key]) {
-        deps[key] = [];
-      }
-      deps[key].push(value.version);
-      fetchModule(`${cwd}/${thisModule.dependency_dir}/${value.dir_name}`);
+      res[key] = fetchModule(`${cwd}/${thisModule.dependency_dir}/${value.dir_name}`, depth + 1) || {};
+    }
+    return res;
+  }
+
+  function printModule(module, depth = 0) {
+    for (const [key, value] of Object.entries(module)) {
+      console.log(`${" \\".repeat(depth)}${key}`);
+      printModule(value, depth + 1);
     }
   }
-  fetchModule(process.cwd());
-  console.log(deps);
+  printModule(fetchModule(process.cwd()));
 }
 
-module.exports = { help, version, init, install, list, installAll, tree };
+function uninstall(repo) {
+  const thisModule = getThisModule();
+  if (!thisModule) {
+    return;
+  }
+  if (!thisModule.dependencies[repo]) {
+    console.log(`${repo} is not installed`);
+    return;
+  }
+  fs.rmSync(`${thisModule.dependency_dir}/${thisModule.dependencies[repo].dir_name}`, { recursive: true });
+  delete thisModule.dependencies[repo];
+  updateThisModule(thisModule, process.cwd());
+}
+
+module.exports = { help, version, init, install, list, installAll, tree, uninstall };
