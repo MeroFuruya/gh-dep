@@ -1,6 +1,10 @@
 const fs = require("fs");
 const { initThisModule, getThisModule, repoExists, versionExists, downlaodTarball, getLatestVersion, setVersion, preprocessDependencies, updateThisModule } = require("./dep.js");
 
+/**
+ * @summary Show the help message
+ * @returns {void}
+ */
 function help() {
   const help = [
     "Usage: dep <command> [options]",
@@ -20,6 +24,10 @@ function help() {
   console.log(help.join("\n"));
 }
 
+/**
+ * @summary Show the version of this package
+ * @returns {void}
+ */
 function version() {
   if (fs.existsSync("./package.json")) {
     const package_json = fs.readFileSync("./package.json", "utf8");
@@ -39,7 +47,9 @@ function init() {
 }
 
 /**
+ * @summary Install a dependency
  * @param {string} repo can be just "repo" or "repo@version"
+ * @returns {void}
  */
 function install(repo) {
   var version = "latest";
@@ -86,12 +96,15 @@ function install(repo) {
     setVersion(thisModule, repo, version);
   }
   updateThisModule(thisModule, process.cwd());
-  preprocessDependencies(thisModule);
-  if (installAll(false, process.cwd(), thisModule)) {
+  if (installAll(false, process.cwd(), preprocessDependencies(thisModule))) {
     console.log(`installed ${repo}@${version}`);
   }
 }
 
+/**
+ * @summary List all dependencies
+ * @returns {void}
+ */
 function list() {
   const thisModule = getThisModule();
   if (!thisModule) {
@@ -103,7 +116,6 @@ function list() {
 }
 
 /**
- * 
  * @param {boolean} override 
  * @param {string} cwd 
  * @param {ThisModule} thisModule 
@@ -123,6 +135,8 @@ function installAll(override = false, cwd = undefined, thisModule = undefined) {
   if (!_thisModule) {
     return;
   }
+
+  _thisModule = preprocessDependencies(_thisModule);
 
   /**
    * @type {[string, Dep]}
@@ -149,6 +163,10 @@ function installAll(override = false, cwd = undefined, thisModule = undefined) {
   }
 }
 
+/**
+ * @summary Show a tree of all dependencies
+ * @returns {void}
+ */
 function tree() {
   const deps = {};
   function fetchModule(cwd) {
